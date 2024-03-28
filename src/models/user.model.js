@@ -40,6 +40,9 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "reader"],
       default: "reader",
     }, // Role field
+    refreshToken: {
+      type: String,
+    },
     posts: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,10 +66,10 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-  console.log(password);
-  console.log(this.password);
+  // console.log(password);
+  // console.log(this.password);
   const returnValue = await bcrypt.compare(password, this.password);
-  console.log(returnValue);
+  // console.log(returnValue);
   return returnValue;
 };
 
