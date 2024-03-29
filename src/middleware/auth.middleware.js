@@ -13,7 +13,7 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
     if (!token) {
       return res
         .status(401)
-        .json(new ApiResponse(401, "", "User already logged out."));
+        .json(new ApiResponse(401, "", "User logged out."));
     }
 
     const decodeToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -37,12 +37,23 @@ export const isLoggedIn = (req, res, next) => {
     // Check if user is authenticated (e.g., by checking if access token exists in cookies or headers)
     if (req.cookies.accessToken) {
       // User is logged in
+      console.log("You are loggedIn.");
       next(); // Proceed to the next middleware or route handler
     } else {
       // User is not logged in
-      res.status(401).json({ message: "Unauthorized" }); // Respond with unauthorized status
+      res.status(401).json({ message: "You have to login first" }); // Respond with unauthorized status
     }
 };
+
+export const isAdmin = asyncHandler(async(req, res, next)=>{
+    if (req.user && req.user.role === 'admin') {
+      console.log("You are admin");
+      next();
+    } else {
+      console.log(req.user.role);
+      return res.status(403).json({ success: false, error: 'Unauthorized request!!, you are not admin' });
+    }
+})
 
 
 //   export { verifyJwt, isLoggedIn };

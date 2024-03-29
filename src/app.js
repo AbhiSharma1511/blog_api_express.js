@@ -18,10 +18,12 @@ app.use(cookieParser());
 
 // import routes for use
 import userRouter from "../src/routes/userAuth.routes.js";
+import postRouter from "./routes/post_CURD.routes.js";
 
 // use routes here
 // http://localhost:8000/blog_site/register
 app.use("/blog_site", userRouter);
+app.use("/blog_site/post", postRouter);
 
 // app.use((err, req, res, next) => {
 //   console.error(err.stack);

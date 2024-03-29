@@ -12,6 +12,7 @@ const postSchema = new mongoose.Schema(
     },
     genre: {
       type: String,
+      // enum: ["Science", ""],
       default: "all",
     },
     userId: {
