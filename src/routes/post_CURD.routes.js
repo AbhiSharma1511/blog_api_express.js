@@ -4,12 +4,20 @@ import {
   isLoggedIn,
   verifyJwt,
 } from "../middleware/auth.middleware.js";
-import { createPost } from "../controllers/post.controllers.js";
+import {
+  createPost,
+  getAllPost,
+  getAllPostsOfLoggedAdmin,
+  getGenrePost,
+  getLatestPost,
+  getMostLikedPost,
+} from "../controllers/post.controllers.js";
 import upload from "../middleware/multer.middleware.js";
 
 const postRouter = Router();
 
-postRouter.route("/createPost").post(
+// only for admin...
+postRouter.route("/createpost").post(
   verifyJwt,
   isLoggedIn,
   isAdmin,
@@ -21,5 +29,18 @@ postRouter.route("/createPost").post(
   ]),
   createPost
 );
+
+postRouter
+  .route("/admin/getallpost")
+  .get(verifyJwt, isLoggedIn, isAdmin, getAllPostsOfLoggedAdmin);
+
+// fetch all the posts either user is loggedIn or not...
+postRouter.route("/getallpost").get(getAllPost);
+
+postRouter.route("/genre/:genre").get(getGenrePost);
+
+postRouter.route("/getmostliked").get(getMostLikedPost);
+
+postRouter.route("/getlatest").get(getLatestPost);
 
 export default postRouter;

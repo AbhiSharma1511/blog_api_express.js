@@ -21,9 +21,16 @@ import userRouter from "../src/routes/userAuth.routes.js";
 import postRouter from "./routes/post_CURD.routes.js";
 
 // use routes here
-// http://localhost:8000/blog_site/register
-app.use("/blog_site", userRouter);
-app.use("/blog_site/post", postRouter);
+app.use("/blog_site/auth", userRouter);
+// http://localhost:8000/blog_site/auth/register
+// http://localhost:8000/blog_site/auth/login
+// http://localhost:8000/blog_site/auth/logout
+
+// for fetching posts
+app.use("/blog_site/posts", postRouter);
+// http://localhost:8000/blog_site/posts/createPost
+// http://localhost:8000/blog_site/posts/getAllPosts
+// http://localhost:8000/blog_site/posts/genre/science
 
 // app.use((err, req, res, next) => {
 //   console.error(err.stack);
