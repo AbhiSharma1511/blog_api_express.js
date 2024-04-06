@@ -1,5 +1,6 @@
 import { Post } from "../models/post.model.js";
 import { User } from "../models/user.model.js";
+import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import uploadOnCloudinary from "../utils/cloudinary.js"; // Import the function to upload images to Cloudinary
@@ -24,7 +25,7 @@ const createPost = asyncHandler(async (req, res) => {
     // }
 
     for (const image of req.files?.images) {
-      // console.log(image);
+      console.log(image);
       var imagePath = image?.path;
       var cloudinaryResponse = await uploadOnCloudinary(imagePath);
       cloudinaryUrls.push(cloudinaryResponse.url);
@@ -83,7 +84,7 @@ const getAllPost = asyncHandler(async (req, res) => {
 
 const getGenrePost = asyncHandler(async (req, res) => {
   try {
-    const { genre } = req.params;
+    const  genre  = req.query.genre;  // ?genre=science
     // Fetch posts of the specified genre from the database
     const posts = await Post.find({ genre: genre });
     // Check if no posts of the specified genre are found
@@ -154,5 +155,22 @@ const getLatestPost = asyncHandler(async (req, res) => {
   }
 });
 
+const deletePost = asyncHandler(async(req, res)=>{});
 
-export { createPost, getAllPost, getGenrePost, getAllPostsOfLoggedAdmin, getMostLikedPost, getLatestPost };
+const getSpecificPost = asyncHandler(async(req, res)=>{
+
+  const postId = req.query._id;  // post?_id=66071108827c002924ac7ec9
+    try {
+      const post = await Post.findById(postId);
+      if (!post || post.length === 0) {
+        return res.status(404).json({ message: "No posts found" });
+      }
+      return res.status(200).json(post);
+    } catch (error) {
+      console.log("Error in fetching post: ", error.message);
+      return res.status(500).json(new ApiResponse(500, {}, error.message));
+    }
+})
+
+
+export { createPost, getAllPost, getGenrePost, getAllPostsOfLoggedAdmin, getMostLikedPost, getLatestPost, deletePost, getSpecificPost };

@@ -6,7 +6,8 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN,
+    // origin: process.env.CORS_ORIGIN,
+    origin: 'http://localhost:3000', //only for local development, this is not used in production level...
     credentials: true,
   })
 );
@@ -30,7 +31,10 @@ app.use("/blog_site/auth", userRouter);
 app.use("/blog_site/posts", postRouter);
 // http://localhost:8000/blog_site/posts/createPost
 // http://localhost:8000/blog_site/posts/getAllPosts
-// http://localhost:8000/blog_site/posts/genre/science
+// http://localhost:8000/blog_site/posts/genre?genre={genre}
+// http://localhost:8000/blog_site/posts/getmostliked
+// http://localhost:8000/blog_site/posts/getlatest
+// http://localhost:8000/blog_site/posts/post?_id:{postId}
 
 // app.use((err, req, res, next) => {
 //   console.error(err.stack);
