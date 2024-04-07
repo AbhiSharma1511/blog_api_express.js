@@ -15,8 +15,8 @@ const generateAccessAndRefreshToken = async (userId) => {
     const accessToken = await user.generateAccessToken();
     const refreshToken = await user.generateRefreshToken();
 
-    console.log("Access Token: ", accessToken);
-    console.log("Refresh Token: ", refreshToken);
+    // console.log("Access Token: ", accessToken);
+    // console.log("Refresh Token: ", refreshToken);
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
@@ -117,7 +117,7 @@ const loginUser = asyncHandler(async (req, res) => {
   // const currentUser = await User.findById(req.user._id);
   // if(currentUser) throw new ApiError(400, "User already loggedIn!");
 
-  const { email, username, password } = req.body;
+  const { email, username, password } = req.query;
 
   if (!username && !email) {
     throw new ApiError(400, "Username or email is required");
