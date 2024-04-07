@@ -30,26 +30,47 @@ const generateAccessAndRefreshToken = async (userId) => {
   }
 };
 
+// for automatically generate unique username with the help of email
+const generateUniqueUsername = async (email) => {
+  const username = email.split("@")[0];
+  let uniqueUsername = "";
+  let unique = true;
+
+  do {
+    const randomString = Math.random().toString(36).substring(2, 6);
+    uniqueUsername = `${username}_${randomString}`;
+    unique = await User.findOne({ username: uniqueUsername });
+  } while (unique);
+
+  if(uniqueUsername === ""){
+    console.log('Username is null');
+  }
+
+  return uniqueUsername;
+};
+
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullName, username, email, password, role } = req.body;
+  const { fullName, email, password, role } = req.body;
   console.log("Body: ", req.body);
 
-  if (
-    [username, fullName, email, password].some((field) => field?.trim() === "")
-  ) {
+  // Generate a unique username from the email
+  const username = await generateUniqueUsername(email);
+  console.log(username);
+
+  // Check if any of the required fields are empty
+  if ([username, fullName, email, password].some((field) => typeof field === 'string' && field.trim() === "")) {
     console.log("error error error");
-    throw new ApiError(400, "All feilds are required");
+    throw new ApiError(400, "All fields are required");
   }
 
   try {
-    // Check if the username or email is already taken
+
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       throw new ApiResponse(409, existingUser, "User alerady existed!");
     }
 
-    // checking the field for empty values
-
+    // Create a new user
     let newUser;
     if (role === "admin") {
       newUser = new User({
@@ -61,7 +82,6 @@ const registerUser = asyncHandler(async (req, res) => {
         posts: [], // Admin users initially have an empty posts array
       });
     } else {
-      // console.log("error1 error1 error1");
       newUser = new User({
         username,
         fullName,
@@ -70,15 +90,17 @@ const registerUser = asyncHandler(async (req, res) => {
         role: "reader",
       });
     }
-    // Save the new user to the database
 
+    // Save the new user to the database
     await newUser.save();
+
+    // Retrieve the newly created user from the database
     const newuser = await User.findById(newUser._id).select(
       "-password -refreshToken"
     );
 
     if (!newuser) {
-      throw new ApiError(500, "Somthing went wrong while creating new user");
+      throw new ApiError(500, "Something went wrong while creating new user");
     }
 
     return res
@@ -89,6 +111,7 @@ const registerUser = asyncHandler(async (req, res) => {
     res.status(500).json({ message: "Error registering user:", Error: error });
   }
 });
+
 
 const loginUser = asyncHandler(async (req, res) => {
   // const currentUser = await User.findById(req.user._id);
@@ -163,45 +186,46 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { user }, "User logged out"));
 });
 
-const refreshAccessToken = asyncHandler(async (req, res)=>{
-  
-  const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken;
 
-  if(!incomingRefreshToken) throw new ApiError(401, "Unauthorized request")
+  if (!incomingRefreshToken) throw new ApiError(401, "Unauthorized request");
 
   try {
-    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
-
-    const user = await User.findById(decodedToken?._id)
-
-    if(!user) throw new ApiError(401, "Invalid refresh token")
-
-    if(incomingRefreshToken !== user?.refreshToken)
-      throw new ApiError(401, "Refresh token is expired or used")
-    
-    const option = {
-      httpOnly: true,
-      secure: true
-    }
-
-    const { accessToken, newRefreshToken } = await generateAccessAndRefreshToken(
-      user._id
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
     );
 
-    return res.status(200)
-    .cookie("accessToken", accessToken, option)
-    .cookie("refreshToken", newRefreshToken, option)
-    .json(
-      new ApiResponse(
-        200,
-        {accessToken, refreshToken: newRefreshToken},
-        "Access token refreshed"
-      )
-    )
-  } catch (error) {
-    throw new ApiError(401, error?.messae)
-  }
-})
+    const user = await User.findById(decodedToken?._id);
 
+    if (!user) throw new ApiError(401, "Invalid refresh token");
+
+    if (incomingRefreshToken !== user?.refreshToken)
+      throw new ApiError(401, "Refresh token is expired or used");
+
+    const option = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    const { accessToken, newRefreshToken } =
+      await generateAccessAndRefreshToken(user._id);
+
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, option)
+      .cookie("refreshToken", newRefreshToken, option)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken: newRefreshToken },
+          "Access token refreshed"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(401, error?.messae);
+  }
+});
 
 export { registerUser, loginUser, logoutUser, refreshAccessToken };
