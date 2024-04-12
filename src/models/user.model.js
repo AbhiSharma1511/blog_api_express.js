@@ -55,6 +55,18 @@ const userSchema = new mongoose.Schema(
         ref: "Comment",
       },
     ],
+    likepost:[
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post"
+      }
+    ],
+    savepost:[
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Post"
+      }
+    ]
   },
   { timestamps: true }
 );

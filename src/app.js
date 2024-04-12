@@ -7,7 +7,7 @@ const app = express();
 app.use(
   cors({
     // origin: process.env.CORS_ORIGIN,
-    origin: 'http://localhost:3000', //only for local development, this is not used in production level...
+    origin: 'http://localhost:5173', //only for local development, this is not used in production level...
     credentials: true,
   })
 );
