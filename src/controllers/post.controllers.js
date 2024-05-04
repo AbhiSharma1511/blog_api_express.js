@@ -56,7 +56,7 @@ const createPost = asyncHandler(async (req, res) => {
       // Handle the case where the user is not found
       return res.status(404).json({ error: "User not found" });
     } else {
-      console.log("admin data is updated");
+      console.log("user data is updated");
     }
 
     res.status(201).json({ success: true, data: newPost });
@@ -102,7 +102,7 @@ const getGenrePost = asyncHandler(async (req, res) => {
   }
 });
 
-const getAllPostsOfLoggedAdmin = asyncHandler(async (req, res) => {
+const getAllPostsOfLoggedUser = asyncHandler(async (req, res) => {
   try {
     const userId = req.user._id;
     const posts = await Post.find({ userId: userId });
@@ -110,6 +110,7 @@ const getAllPostsOfLoggedAdmin = asyncHandler(async (req, res) => {
       return res.status(404).json({ message: "No posts found" });
     }
     console.log(`Total posts are: ${posts.length} posted by you`);
+    console.log(posts.length);
     return res.status(200).json(posts);
   } catch (error) {
     console.log("Error in fetching post: ", error.message);
@@ -171,6 +172,18 @@ const getSpecificPost = asyncHandler(async(req, res)=>{
       return res.status(500).json(new ApiResponse(500, {}, error.message));
     }
 })
+const addLike = asyncHandler(async(req,res)=>{
+
+})
+const removeLike = asyncHandler(async(req,res)=>{
+
+})
+const addSave = asyncHandler(async(req,res)=>{
+
+})
+const removeSave = asyncHandler(async(req,res)=>{
+
+})
 
 
-export { createPost, getAllPost, getGenrePost, getAllPostsOfLoggedAdmin, getMostLikedPost, getLatestPost, deletePost, getSpecificPost };
+export { createPost, getAllPost, getGenrePost, getAllPostsOfLoggedUser, getMostLikedPost, getLatestPost, deletePost, getSpecificPost };

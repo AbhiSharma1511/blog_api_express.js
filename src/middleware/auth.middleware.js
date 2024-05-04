@@ -3,6 +3,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import ApiResponse from "../utils/ApiResponse.js";
+import { generateAccessAndRefreshToken } from "../controllers/auth.controller.js"
 
 export const verifyJwt = asyncHandler(async (req, res, next) => {
   try {
@@ -54,6 +55,35 @@ export const isAdmin = asyncHandler(async(req, res, next)=>{
       return res.status(403).json({ success: false, error: 'Unauthorized request!!, you are not admin' });
     }
 })
+
+export const refreshTokenMiddleware = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new ApiError(401, "Refresh token not provided.");
+    }
+    // Verify the refresh token
+    const decodedToken = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    // Find the user associated with the refresh token
+    const user = await User.findById(decodedToken._id);
+    if (!user || refreshToken !== user.refreshToken) {
+      throw new ApiError(401, "Invalid refresh token.");
+    }
+    // Generate new access token and refresh token
+    const accessToken = await user.generateAccessToken();
+    const newRefreshToken = await user.generateRefreshToken();
+    // Set cookies with new tokens
+    const option = { httpOnly: true, secure: true };
+    res.cookie("accessToken", accessToken, option);
+    res.cookie("refreshToken", newRefreshToken, option);
+    console.log(accessToken);
+    console.log(refreshToken);
+
+    next(); // Move to next middleware or route handler
+  } catch (error) {
+    next(error); // Pass error to error handler middleware
+  }
+};
 
 
 //   export { verifyJwt, isLoggedIn };

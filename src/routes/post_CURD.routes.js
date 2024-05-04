@@ -3,12 +3,13 @@ import {
   isAdmin,
   isLoggedIn,
   verifyJwt,
+  refreshTokenMiddleware
 } from "../middleware/auth.middleware.js";
 import {
   createPost,
   deletePost,
   getAllPost,
-  getAllPostsOfLoggedAdmin,
+  getAllPostsOfLoggedUser,
   getGenrePost,
   getLatestPost,
   getMostLikedPost,
@@ -22,7 +23,6 @@ const postRouter = Router();
 postRouter.route("/createpost").post(
   verifyJwt,
   isLoggedIn,
-  isAdmin,
   upload.fields([
     {
       name: "images", // Field name in form-data
@@ -32,9 +32,8 @@ postRouter.route("/createpost").post(
   createPost
 );
 
-postRouter
-  .route("/admin/getallpost")
-  .get(verifyJwt, isLoggedIn, isAdmin, getAllPostsOfLoggedAdmin);
+postRouter.route("/:user/getallpost")
+  .get(verifyJwt, isLoggedIn, getAllPostsOfLoggedUser);
 
 // fetch all the posts either user is loggedIn or not...
 postRouter.route("/getallpost").get(getAllPost);

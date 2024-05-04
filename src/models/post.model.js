@@ -25,10 +25,24 @@ const postSchema = new mongoose.Schema(
       required: true,
       maxlength: 3,
     },
-    likes: {
-      type: Number,
-      default: 0,
-    },
+    likes: [
+      {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", 
+        required: true,
+      }
+    }
+    ],
+    saves: [
+      {
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User", 
+        required: true,
+      }
+    }
+    ],
     comments: [
       {
         userId: {

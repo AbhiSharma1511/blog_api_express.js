@@ -37,8 +37,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["admin", "reader"],
-      default: "reader",
+      enum: ["admin", "user"],
+      default: "user",
     }, // Role field
     refreshToken: {
       type: String,
@@ -55,18 +55,12 @@ const userSchema = new mongoose.Schema(
         ref: "Comment",
       },
     ],
-    likepost:[
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Post"
-      }
-    ],
-    savepost:[
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Post"
-      }
-    ]
+    likeposts: {
+      type: [String],
+    },
+    saveposts: {
+      type: [String],
+    },
   },
   { timestamps: true }
 );
